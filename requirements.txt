@@ -10,4 +10,5 @@ pylint==1.9.2
 singledispatch==3.4.0.3
 six==1.11.0
 virtualenv==16.0.0
+web.py==0.39
 wrapt==1.10.11
