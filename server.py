@@ -12,4 +12,5 @@ class hello:
         return 'Hello, ' + name + '!'
 
 if __name__ == "__main__":
+    print('running')
     app.run()
