@@ -1,30 +1,18 @@
-#!/usr/bin/python
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+import os
+import web
 
-PORT_NUMBER = 8080
+urls = (
+    '/(.*)', 'hello'
+)
+app = web.application(urls, globals())
 
-#This class will handles any incoming request from
-#the browser
-class myHandler(BaseHTTPRequestHandler):
+class hello:
+    def GET(self, name):
+        if not name:
+            name = 'World'
+        return 'Hello, ' + name + '!'
 
-    #Handler for the GET requests
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
-        # Send the html message
-        self.wfile.write("Hello World !")
-        return
-
-try:
-    #Create a web server and define the handler to manage the
-    #incoming request
-    server = HTTPServer(('', PORT_NUMBER), myHandler)
-    print('Started httpserver on port %s', PORT_NUMBER)
-    # Wait forever for incoming htto requests
-    server.serve_forever()
-
-except KeyboardInterrupt:
-    print('^C received, shutting down the web server')
-
-    server.socket.close()
+if __name__ == "__main__":
+    port = int(os.environ.get('PORT', 8080))
+    app = web.application(urls, globals())
+    app.run()
