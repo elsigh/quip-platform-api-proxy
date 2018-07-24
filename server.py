@@ -33,14 +33,6 @@ class new:
         logging.debug("new_thread_response %s", new_thread_response)
         return new_thread_response
 
-    def GET(self):
-        access_token = "Qk9NQU1BRmRxVVI=|1563906415|mJ6/zBHv4bECSoxp1AUfrjURmao4JP0ABp97nwvl2ts="
-        template_thread_id = "IrdIAvWi0VAp"
-        member_ids = ["BOMAEAS9Vni", "dXOAEAtFEvl"]
-
-        self.create_new_from_template(access_token, template_thread_id, member_ids)
-        return "ok"
-
     def OPTIONS(self):
         self.cors_headers()
         return 'ok'
