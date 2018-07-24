@@ -1,8 +1,6 @@
 import json
 import logging
 import quip
-import urllib
-import urllib2
 import web
 
 logging.basicConfig(level=logging.DEBUG)
