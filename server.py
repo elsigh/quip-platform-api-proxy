@@ -6,7 +6,7 @@ import web
 logging.basicConfig(level=logging.DEBUG)
 
 urls = (
-    '/new', 'new',
+    '/copy_thread', 'copy_thread',
     '/(.*)', 'hello',
 )
 app = web.application(urls, globals())
@@ -16,7 +16,7 @@ class hello:
         if not name:
             name = 'World'
         return 'Hello, ' + name + '!'
-class new:
+class copy_thread:
     def cors_headers(self):
         web.header('Access-Control-Allow-Origin', '*')
         web.header('Access-Control-Allow-Credentials', 'true')
@@ -24,11 +24,15 @@ class new:
 
     def create_new_from_template(self, access_token, template_thread_id, title, member_ids):
         client = quip.QuipClient(access_token)
-        template_json = client.get_thread(template_thread_id)
-        template_html = template_json.get("html")
 
-        new_html = template_html.replace("Feedback For Engineers Template", title)
-        logging.debug("new_html %s", new_html)
+        template_json = client.get_thread(template_thread_id)
+        logging.debug("template_json: %s", template_json)
+
+        template_html = template_json.get("html")
+        template_title = template_json.get("thread").get("title")
+
+        new_html = template_html.replace(template_title, title)
+
         new_thread_response = client.new_document(new_html, member_ids=member_ids)
         logging.debug("new_thread_response %s", new_thread_response)
         return new_thread_response
