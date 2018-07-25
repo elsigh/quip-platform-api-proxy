@@ -35,6 +35,7 @@ class get_thread:
 
         client = quip.QuipClient(access_token)
         thread_json = client.get_thread(thread_id)
+        logging.debug("thread_json: %s", thread_json)
         web.header('Content-Type', 'application/json')
         return json.dumps(thread_json)
 
