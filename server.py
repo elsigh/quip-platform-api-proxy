@@ -6,7 +6,8 @@ import web
 logging.basicConfig(level=logging.DEBUG)
 
 urls = (
-    '/copy_thread', 'copy_thread',
+    '/thread/copy', 'copy_thread',
+    '/thread/get', 'get_thread',
     '/(.*)', 'hello',
 )
 app = web.application(urls, globals())
@@ -16,11 +17,28 @@ class hello:
         if not name:
             name = 'World'
         return 'Hello, ' + name + '!'
+
+
+def set_cors_headers():
+    web.header('Access-Control-Allow-Origin', '*')
+    web.header('Access-Control-Allow-Credentials', 'true')
+    web.header("Access-Control-Allow-Headers", "X-Requested-With, Content-type")
+
+class get_thread:
+    def GET(self):
+        set_cors_headers()
+        web_input = web.input()
+        logging.debug("web_input: %s", web_input)
+
+        access_token = web_input.get('access_token')
+        thread_id = web_input.get('thread_id')
+
+        client = quip.QuipClient(access_token)
+        thread_json = client.get_thread(thread_id)
+        web.header('Content-Type', 'application/json')
+        return json.dumps(thread_json)
+
 class copy_thread:
-    def cors_headers(self):
-        web.header('Access-Control-Allow-Origin', '*')
-        web.header('Access-Control-Allow-Credentials', 'true')
-        web.header("Access-Control-Allow-Headers", "X-Requested-With, Content-type")
 
     def create_new_from_template(self, access_token, template_thread_id, title, member_ids):
         client = quip.QuipClient(access_token)
@@ -38,14 +56,14 @@ class copy_thread:
         return new_thread_response
 
     def OPTIONS(self):
-        self.cors_headers()
+        set_cors_headers()
         return 'ok'
 
     def POST(self):
-        self.cors_headers()
+        set_cors_headers()
 
         web_data = json.loads(web.data())
-        logging.debug("WEB DATA %s", web_data)
+        logging.debug("web_data: %s", web_data)
         access_token = web_data.get('access_token')
         template_thread_id = web_data.get('template_thread_id')
         member_ids = web_data.get('member_ids')
@@ -55,7 +73,7 @@ class copy_thread:
             template_thread_id, title, member_ids)
 
         web.header('Content-Type', 'application/json')
-        return json.dumps({'api_response': new_document_response})
+        return json.dumps(new_document_response)
 
 if __name__ == "__main__":
     print('running')
