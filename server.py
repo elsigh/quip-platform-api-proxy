@@ -22,39 +22,61 @@ class hello:
 def set_cors_headers():
     web.header('Access-Control-Allow-Origin', '*')
     web.header('Access-Control-Allow-Credentials', 'true')
-    web.header("Access-Control-Allow-Headers", "X-Requested-With, Content-type")
+    web.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-type')
 
 class get_thread:
     def GET(self):
         set_cors_headers()
         web_input = web.input()
-        logging.debug("web_input: %s", web_input)
+        logging.debug('web_input: %s', web_input)
 
         access_token = web_input.get('access_token')
         thread_id = web_input.get('thread_id')
 
         client = quip.QuipClient(access_token)
-        thread_json = client.get_thread(thread_id)
-        logging.debug("thread_json: %s", thread_json)
-        web.header('Content-Type', 'application/json')
-        return json.dumps(thread_json)
+        try:
+            thread_json = client.get_thread(thread_id)
+            logging.debug('thread_json: %s', thread_json)
+            web.header('Content-Type', 'application/json')
+            return json.dumps(thread_json)
+        except quip.QuipError as err:
+            logging.debug('QuipError %s', err)
+            web.ctx.status = err.message
+            return err.message
+        except:
+            raise
+
 
 class copy_thread:
 
     def create_new_from_template(self, access_token, template_thread_id, title, member_ids):
         client = quip.QuipClient(access_token)
 
-        template_json = client.get_thread(template_thread_id)
-        logging.debug("template_json: %s", template_json)
+        try:
+            template_json = client.get_thread(template_thread_id)
+            logging.debug('template_json: %s', template_json)
+        except quip.QuipError as err:
+            logging.debug('QuipError %s', err)
+            web.ctx.status = err.message
+            return err.message
+        except:
+            raise
 
-        template_html = template_json.get("html")
-        template_title = template_json.get("thread").get("title")
+        template_html = template_json.get('html')
+        template_title = template_json.get('thread').get('title')
 
         new_html = template_html.replace(template_title, title)
 
-        new_thread_response = client.new_document(new_html, member_ids=member_ids)
-        logging.debug("new_thread_response %s", new_thread_response)
-        return new_thread_response
+        try:
+            new_thread_response = client.new_document(new_html, member_ids=member_ids)
+            logging.debug('new_thread_response %s', new_thread_response)
+            return new_thread_response
+        except quip.QuipError as err:
+            logging.debug('QuipError %s', err)
+            web.ctx.status = err.message
+            return err.message
+        except:
+            raise
 
     def OPTIONS(self):
         set_cors_headers()
@@ -64,7 +86,7 @@ class copy_thread:
         set_cors_headers()
 
         web_data = json.loads(web.data())
-        logging.debug("web_data: %s", web_data)
+        logging.debug('web_data: %s', web_data)
         access_token = web_data.get('access_token')
         template_thread_id = web_data.get('template_thread_id')
         member_ids = web_data.get('member_ids')
@@ -76,6 +98,6 @@ class copy_thread:
         web.header('Content-Type', 'application/json')
         return json.dumps(new_document_response)
 
-if __name__ == "__main__":
-    print('running')
+if __name__ == '__main__':
+    print('running quip-platform-api-proxy server')
     app.run()
